@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>THD GSOC Playbook - Supply Chain Disruption</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState } = React;
+
+        // Icons as SVG components
+        const AlertTriangle = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+        );
+
+        const Package = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+            </svg>
+        );
+
+        const Users = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+            </svg>
+        );
+
+        const MessageSquare = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+            </svg>
+        );
+
+        const ClipboardCheck = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
+        );
+
+        const ChevronDown = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7"></path>
+            </svg>
+        );
+
+        const ChevronUp = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 15l7-7 7 7"></path>
+            </svg>
+        );
+
+        const Truck = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 17a2 2 0 11-4 0 2 2 0 014 0zM19 17a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16V6a1 1 0 00-1-1H4a1 1 0 00-1 1v10a1 1 0 001 1h1m8-1a1 1 0 01-1 1H9m4-1V8a1 1 0 011-1h2.586a1 1 0 01.707.293l3.414 3.414a1 1 0 01.293.707V16a1 1 0 01-1 1h-1m-6-1a1 1 0 001 1h1M5 17a2 2 0 104 0m-4 0a2 2 0 114 0m6 0a2 2 0 104 0m-4 0a2 2 0 114 0"></path>
+            </svg>
+        );
+
+        const Cloud = ({ className }) => (
+            <svg className={className} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z"></path>
+            </svg>
+        );
+
+        const SupplyChainPlaybook = () => {
+            const [expandedSections, setExpandedSections] = useState({
+                protocol: true,
+                flowchart: false,
+                roles: false,
+                communications: false,
+                continuity: false
+            });
+
+            const toggleSection = (section) => {
+                setExpandedSections(prev => ({
+                    ...prev,
+                    [section]: !prev[section]
+                }));
+            };
+
+            const SectionHeader = ({ icon: Icon, title, section, color }) => (
+                <div 
+                    className={`flex items-center justify-between p-4 ${color} cursor-pointer rounded-lg mb-2`}
+                    onClick={() => toggleSection(section)}
+                >
+                    <div className="flex items-center gap-3">
+                        <Icon className="w-6 h-6 text-white" />
+                        <h2 className="text-xl font-bold text-white">{title}</h2>
+                    </div>
+                    {expandedSections[section] ? 
+                        <ChevronUp className="w-5 h-5 text-white" /> : 
+                        <ChevronDown className="w-5 h-5 text-white" />
+                    }
+                </div>
+            );
+
+            return (
+                <div className="max-w-5xl mx-auto p-6 bg-gray-50 min-h-screen">
+                    {/* Introduction Section */}
+                    <div className="bg-gradient-to-br from-orange-600 via-orange-500 to-orange-700 text-white p-10 rounded-xl mb-8 shadow-2xl">
+                        <div className="text-center mb-8">
+                            <div className="inline-block bg-white/20 backdrop-blur-sm rounded-full p-6 mb-6">
+                                <Truck className="w-16 h-16" />
+                            </div>
+                            <h1 className="text-5xl font-bold mb-4 tracking-tight">THE GSOC PLAYBOOK</h1>
+                            <div className="h-1 w-32 bg-white mx-auto mb-6"></div>
+                            <p className="text-2xl text-orange-100 font-light">Global Security Operations Center</p>
+                            <p className="text-xl text-orange-50 mt-2">Emergency Response & Business Continuity</p>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-md rounded-lg p-6 mt-8 border border-white/20">
+                            <h2 className="text-xl font-bold mb-4 text-center">DOCUMENT INFORMATION</h2>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <p className="text-sm text-orange-100 mb-1">Created By</p>
+                                    <p className="text-lg font-bold">Ayomide Braimoh</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-orange-100 mb-1">Institution</p>
+                                    <p className="text-lg font-bold">Alabama A&M University</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-orange-100 mb-1">Academic Program</p>
+                                    <p className="text-lg font-bold">Computer Science Major</p>
+                                </div>
+                                <div>
+                                    <p className="text-sm text-orange-100 mb-1">Version</p>
+                                    <p className="text-lg font-bold">1.0 | October 2025</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="mt-8 bg-orange-800/50 rounded-lg p-6 border-l-4 border-white">
+                            <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                                <AlertTriangle className="w-5 h-5" />
+                                About This Playbook
+                            </h3>
+                            <p className="text-orange-50 leading-relaxed">
+                                This playbook provides frontline-ready protocols for managing critical incidents at The Home Depot retail locations. 
+                                Designed for rapid deployment during emergencies, each scenario includes step-by-step procedures, decision frameworks, 
+                                communication templates, and business continuity guidance. The content is structured for clarity under pressure, 
+                                ensuring that shift leads and store teams can respond effectively to protect associates, customers, and operations.
+                            </p>
+                        </div>
+
+                        <div className="mt-6 flex flex-wrap gap-4 justify-center">
+                            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 flex items-center gap-2">
+                                <Package className="w-5 h-5" />
+                                <span className="font-semibold">3 Scenarios</span>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 flex items-center gap-2">
+                                <Users className="w-5 h-5" />
+                                <span className="font-semibold">5 Core Components</span>
+                            </div>
+                            <div className="bg-white/20 backdrop-blur-sm rounded-lg px-6 py-3 flex items-center gap-2">
+                                <ClipboardCheck className="w-5 h-5" />
+                                <span className="font-semibold">Field-Tested</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Scenario Header */}
+                    <div className="bg-gradient-to-r from-blue-600 to-blue-700 text-white p-8 rounded-lg mb-6 shadow-lg">
+                        <div className="flex items-center gap-3 mb-2">
+                            <Cloud className="w-8 h-8" />
+                            <div>
+                                <p className="text-sm text-blue-100 font-semibold">SCENARIO 1 OF 3</p>
+                                <h2 className="text-2xl font-bold">Supply Chain Disruption</h2>
+                            </div>
+                        </div>
+                        <p className="text-blue-100 text-lg mt-2">Storm-Impacted Inbound Trucks</p>
+                    </div>
+
+                    {/* Section A: Emergency Protocol */}
+                    <div className="mb-4">
+                        <SectionHeader 
+                            icon={AlertTriangle} 
+                            title="A) Emergency Protocol" 
+                            section="protocol"
+                            color="bg-red-600"
+                        />
+                        {expandedSections.protocol && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-2 text-red-600">Purpose</h3>
+                                    <p className="text-gray-700 italic">
+                                        "You'll maintain customer service and store operations when expected inventory is delayed by severe weather."
+                                    </p>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-2 text-red-600">Triggers</h3>
+                                    <p className="text-gray-700">
+                                        "If GSOC alerts you of storm-impacted delivery routes OR if expected trucks are 4+ hours overdue with weather reports confirming regional storms, you run this play."
+                                    </p>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-3 text-red-600">First 5 Minutes (You)</h3>
+                                    <ul className="space-y-2">
+                                        {[
+                                            "Confirm delivery delay with GSOC and check expected SKUs on manifest",
+                                            "Identify critical inventory gaps (high-demand, seasonal, or advertised items)",
+                                            "Alert department heads to check on-hand stock levels immediately",
+                                            "Activate alternative sourcing protocol (nearby stores, emergency vendors)",
+                                            "Update status page with initial delay notice"
+                                        ].map((item, i) => (
+                                            <li key={i} className="flex gap-2">
+                                                <span className="text-red-600 font-bold">•</span>
+                                                <span className="text-gray-700">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-3 text-red-600">First 30 Minutes (Team)</h3>
+                                    <ul className="space-y-2">
+                                        {[
+                                            "Conduct rapid inventory audit of top 20 SKUs affected by delay",
+                                            "Post signage at entry and affected departments: 'Temporarily out of stock expected by [time]'",
+                                            "Deploy customer service scripts for product substitutions and rain checks",
+                                            "Arrange inter-store transfers for critical items (coordinate with GSOC)",
+                                            "Contact emergency vendors for immediate replenishment of essential SKUs",
+                                            "Start 30-minute communication cadence to customers and associates",
+                                            "Document all actions in incident log with timestamps and SKU tracking"
+                                        ].map((item, i) => (
+                                            <li key={i} className="flex gap-2">
+                                                <span className="text-red-600 font-bold">•</span>
+                                                <span className="text-gray-700">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+
+                                <div className="bg-red-50 border-l-4 border-red-600 p-4 rounded">
+                                    <h3 className="font-bold text-lg mb-2 text-red-600">Safety Non-Negotiables</h3>
+                                    <ul className="space-y-2">
+                                        {[
+                                            "No associates sent to retrieve trucks or check roads (GSOC coordinates with logistics only)",
+                                            "Do not promise specific delivery times to customers; provide ranges and alternatives only",
+                                            "Prioritize life-safety SKUs first (generators, batteries, tarps) if storm impacts local area too"
+                                        ].map((item, i) => (
+                                            <li key={i} className="flex gap-2">
+                                                <span className="text-red-600 font-bold">⚠</span>
+                                                <span className="text-gray-700 font-medium">{item}</span>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section B: Decision Tree */}
+                    <div className="mb-4">
+                        <SectionHeader 
+                            icon={Package} 
+                            title="B) Decision Tree / Flowchart" 
+                            section="flowchart"
+                            color="bg-blue-600"
+                        />
+                        {expandedSections.flowchart && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                <div className="bg-blue-50 p-6 rounded-lg">
+                                    <div className="flex flex-col space-y-4">
+                                        <div className="bg-blue-600 text-white p-4 rounded-lg text-center font-bold">
+                                            START: Delivery Delay Alert Received / Trucks 4+ Hours Overdue
+                                        </div>
+
+                                        <div className="flex justify-center text-2xl">↓</div>
+
+                                        <div className="bg-yellow-100 border-2 border-yellow-600 p-4 rounded-lg">
+                                            <p className="font-bold text-center mb-2">Are delayed items life-safety critical?</p>
+                                            <p className="text-sm text-gray-600 text-center">(Generators, emergency supplies for active storm)</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div className="font-bold text-green-600">YES ➜</div>
+                                                <div className="bg-green-100 border-2 border-green-600 p-3 rounded text-sm">
+                                                    <p className="font-bold mb-1">PRIORITY MODE</p>
+                                                    <ul className="text-xs space-y-1">
+                                                        <li>• Notify GSOC immediately</li>
+                                                        <li>• Activate emergency vendors</li>
+                                                        <li>• Arrange helicopter/priority delivery if available</li>
+                                                        <li>• Inter-store transfers expedited</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div className="font-bold text-blue-600">NO ➜</div>
+                                                <div className="bg-blue-100 border-2 border-blue-600 p-3 rounded text-sm">
+                                                    <p className="font-bold mb-1">STANDARD MODE</p>
+                                                    <ul className="text-xs space-y-1">
+                                                        <li>• Continue standard protocol</li>
+                                                        <li>• Implement alternatives</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-center text-2xl">↓</div>
+
+                                        <div className="bg-yellow-100 border-2 border-yellow-600 p-4 rounded-lg">
+                                            <p className="font-bold text-center mb-2">Can we maintain operations with current stock?</p>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-4">
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div className="font-bold text-green-600">YES ➜</div>
+                                                <div className="bg-green-100 border-2 border-green-600 p-3 rounded text-sm">
+                                                    <p className="font-bold mb-1">PARTIAL OPERATIONS</p>
+                                                    <ul className="text-xs space-y-1">
+                                                        <li>• Post department signage</li>
+                                                        <li>• Offer substitutions</li>
+                                                        <li>• Issue rain checks</li>
+                                                        <li>• Update every 30 minutes</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+
+                                            <div className="flex flex-col items-center space-y-2">
+                                                <div className="font-bold text-red-600">NO ➜</div>
+                                                <div className="bg-red-100 border-2 border-red-600 p-3 rounded text-sm">
+                                                    <p className="font-bold mb-1">DEPT CLOSURE</p>
+                                                    <ul className="text-xs space-y-1">
+                                                        <li>• Close affected departments</li>
+                                                        <li>• Redirect customers</li>
+                                                        <li>• Coordinate transfers</li>
+                                                        <li>• GSOC escalation</li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex justify-center text-2xl">↓</div>
+
+                                        <div className="grid grid-cols-3 gap-3">
+                                            <div className="bg-gray-700 text-white p-3 rounded-lg text-center text-sm font-bold">
+                                                Dept Closed Until Restock
+                                            </div>
+                                            <div className="bg-yellow-600 text-white p-3 rounded-lg text-center text-sm font-bold">
+                                                Partial Operations Mode
+                                            </div>
+                                            <div className="bg-green-600 text-white p-3 rounded-lg text-center text-sm font-bold">
+                                                All-Clear: Full Inventory Restored
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section C: Roles & Responsibilities */}
+                    <div className="mb-4">
+                        <SectionHeader 
+                            icon={Users} 
+                            title="C) Roles & Responsibilities" 
+                            section="roles"
+                            color="bg-purple-600"
+                        />
+                        {expandedSections.roles && (
+                            <div className="bg-white p-6 rounded-lg shadow-md overflow-x-auto">
+                                <table className="w-full border-collapse">
+                                    <thead>
+                                        <tr className="bg-purple-600 text-white">
+                                            <th className="border border-purple-700 p-3 text-left">Role</th>
+                                            <th className="border border-purple-700 p-3 text-left">Responsibilities</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr className="bg-purple-50">
+                                            <td className="border border-purple-200 p-3 font-bold">You (Shift Lead)</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Trigger protocol, confirm delay with GSOC, assign team roles, approve inter-store transfers, final reopen decision
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-purple-200 p-3 font-bold">Inventory Captain</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Rapid SKU audit, identify critical gaps, coordinate stock checks, arrange transfers, track restock progress
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-purple-50">
+                                            <td className="border border-purple-200 p-3 font-bold">Comms POC</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Run 30-minute message cadence, update status page/signage, manage customer inquiries, confirm message reach
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-purple-200 p-3 font-bold">Customer Service Lead</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Deploy substitution scripts, issue rain checks, redirect customers to stocked alternatives, handle escalations
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-purple-50">
+                                            <td className="border border-purple-200 p-3 font-bold">Department Heads</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Check department stock, post signage, identify alternatives, support customer redirects, prepare for restock
+                                            </td>
+                                        </tr>
+                                        <tr>
+                                            <td className="border border-purple-200 p-3 font-bold">Runner(s)</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Execute inter-store pickups, deliver signage materials, fetch supplies, support rapid inventory counts
+                                            </td>
+                                        </tr>
+                                        <tr className="bg-purple-50">
+                                            <td className="border border-purple-200 p-3 font-bold">GSOC</td>
+                                            <td className="border border-purple-200 p-3">
+                                                Provide delay updates, coordinate with logistics/trucking, authorize emergency vendors, facilitate regional transfers, external liaison with carriers
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section D: Communication Templates */}
+                    <div className="mb-4">
+                        <SectionHeader 
+                            icon={MessageSquare} 
+                            title="D) Communication Templates" 
+                            section="communications"
+                            color="bg-green-600"
+                        />
+                        {expandedSections.communications && (
+                            <div className="bg-white p-6 rounded-lg shadow-md space-y-6">
+                                {/* Pre-Impact */}
+                                <div>
+                                    <h3 className="font-bold text-lg mb-3 text-green-600">Pre-Impact (If Storm Forecasted)</h3>
+                                    
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">SMS (≤160 char)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Store 1234: Weather may delay deliveries Wed-Thu. Some items limited stock. Check availability: [link]. We'll keep you posted."
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">App/Email (60-90 words)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Due to severe weather in our distribution region, Store 1234 may experience delivery delays Wednesday through Thursday. Actions: monitoring inventory closely, arranging backup sources, offering substitutions for popular items. Customers: check product availability online before visiting. Associates: see portal for updated stocking schedules. We'll update by 2 PM Wednesday. Status: [link]. Thank you for your understanding."
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* During */}
+                                <div>
+                                    <h3 className="font-bold text-lg mb-3 text-green-600">During (Active Delay)</h3>
+                                    
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">SMS (≤160 char)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Store 1234: Delivery delays confirmed. Limited stock in [Dept]. Ask us for alternatives. Rain checks available. Update in 30 min: [link]"
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">App/Email (60-90 words)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "We're implementing our Supply Chain Delay protocol at Store 1234. Actions: tracking delayed shipments hourly, sourcing from nearby stores, activating emergency vendors. Customers: please ask associates for product alternatives (we're offering substitutions and rain checks). Associates: check portal for department-specific guidance and transfer requests. We'll update by 3 PM. Status page: [link]. Your patience helps us serve everyone safely."
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">IVR (20-30 sec)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Thanks for calling Home Depot Store 1234. We're currently experiencing inventory delays due to severe weather. The store is open with limited stock in some departments. Our team can help with alternatives and rain checks. Check [short URL] for real-time product availability. For immediate needs, speak to an associate in-store."
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">In-Store Signage (10-20 words)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm font-bold text-center">
+                                            "Limited stock due to weather delays. Ask us for alternatives. Rain checks available. Updates: [short URL]"
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* Post */}
+                                <div>
+                                    <h3 className="font-bold text-lg mb-3 text-green-600">Post (Partial Restock)</h3>
+                                    
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">SMS (≤160 char)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Store 1234: Partial shipment arrived! [Top 3 items] back in stock. Full delivery expected by [time]. Check status: [link]"
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">App/Email (60-90 words)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Good news: partial restock completed at Store 1234. Now available: [list key items]. Full inventory expected by [day, time]. Actions: continuing inter-store transfers, rain checks still honored, substitution guidance updated. Customers: check online for current stock levels. Associates: see portal for restocking priorities. Next update: [time]. Status: [link]. Thanks for your patience during the weather delays."
+                                        </p>
+                                    </div>
+                                </div>
+
+                                {/* All-Clear */}
+                                <div>
+                                    <h3 className="font-bold text-lg mb-3 text-green-600">All-Clear (Full Restoration)</h3>
+                                    
+                                    <div className="bg-gray-50 p-4 rounded mb-3">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">SMS (≤160 char)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Store 1234: All clear! Full inventory restored. All departments stocked. Thanks for your patience. Happy shopping! [link]"
+                                        </p>
+                                    </div>
+
+                                    <div className="bg-gray-50 p-4 rounded">
+                                        <p className="font-semibold text-sm text-gray-600 mb-2">App/Email (60-90 words)</p>
+                                        <p className="bg-white p-3 rounded border italic text-sm">
+                                            "Store 1234 is fully restocked and back to normal operations. All departments have received delayed shipments and inventory is complete. Thank you for your patience and understanding during the weather-related delays. Rain checks issued earlier are still valid for 30 days. We appreciate your business and look forward to serving you with full product selection. Visit us anytime!"
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* Section E: Business Continuity */}
+                    <div className="mb-4">
+                        <SectionHeader 
+                            icon={ClipboardCheck} 
+                            title="E) Business Continuity Mini-Guide" 
+                            section="continuity"
+                            color="bg-indigo-600"
+                        />
+                        {expandedSections.continuity && (
+                            <div className="bg-white p-6 rounded-lg shadow-md">
+                                {/* Essential SKUs */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-3 text-indigo-600">Essential SKUs to Maintain (Top 10)</h3>
+                                    <div className="grid grid-cols-2 gap-3">
+                                        {[
+                                            "Generators (portable)",
+                                            "Batteries (AA, AAA, D)",
+                                            "Flashlights / work lights",
+                                            "Extension cords",
+                                            "Tarps / plastic sheeting",
+                                            "Plywood sheets",
+                                            "Bottled water",
+                                            "Contractor bags",
+                                            "Duct tape / repair tape",
+                                            "Seasonal high-demand (hurricane supplies, heaters, etc.)"
+                                        ].map((item, i) => (
+                                            <div key={i} className="bg-indigo-50 p-3 rounded flex items-center gap-2">
+                                                <span className="text-indigo-600 font-bold">{i + 1}.</span>
+                                                <span className="text-sm">{item}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                {/* Workarounds */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-3 text-indigo-600">Workarounds</h3>
+                                    
+                                    <div className="space-y-4">
+                                        <div className="bg-gray-50 p-4 rounded">
+                                            <p className="font-semibold mb-2">Inventory Management:</p>
+                                            <ul className="text-sm space-y-1">
+                                                <li>• Inter-store transfers (coordinate with GSOC)</li>
+                                                <li>• Emergency vendor contacts activated</li>
+                                                <li>• Product substitutions mapped (e.g., brand alternatives)</li>
+                                                <li>• Rain check system for out-of-stock advertised items</li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="bg-gray-50 p-4 rounded">
+                                            <p className="font-semibold mb-2">Customer Service:</p>
+                                            <ul className="text-sm space-y-1">
+                                                <li>• Associate scripts for "similar product" recommendations</li>
+                                                <li>• Online-to-store redirect for checking other locations</li>
+                                                <li>• Dedicated customer service station for inquiries</li>
+                                                <li>• Priority notification list for restock alerts</li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="bg-gray-50 p-4 rounded">
+                                            <p className="font-semibold mb-2">Pickup/Delivery:</p>
+                                            <ul className="text-sm space-y-1">
+                                                <li>• BOPIS orders: proactive customer notification of delays</li>
+                                                <li>• Curbside staged in alternate zones if available</li>
+                                                <li>• Same-day delivery suspended for affected SKUs</li>
+                                            </ul>
+                                        </div>
+
+                                        <div className="bg-gray-50 p-4 rounded">
+                                            <p className="font-semibold mb-2">Staffing (Skeleton Crew if Needed):</p>
+                                            <ul className="text-sm space-y-1">
+                                                <li>• 1 Shift Lead (protocol owner)</li>
+                                                <li>• 1 Inventory Captain (stock tracking)</li>
+                                                <li>• 1 Comms POC (messaging)</li>
+                                                <li>• 1 Customer Service Lead (front-line inquiries)</li>
+                                                <li>• 2 Runners (transfers, signage, support)</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {/* Reopen Criteria */}
+                                <div className="mb-6">
+                                    <h3 className="font-bold text-lg mb-3 text-indigo-600">Reopen Criteria (Department/Full Ops)</h3>
+                                    <div className="bg-green-50 border-l-4 border-green-600 p-4 rounded">
+                                        <p className="font-semibold mb-2">We return to normal operations when:</p>
+                                        <ul className="space-y-2">
+                                            {[
+                                                "Delivery trucks arrive and unloading is complete",
+                                                "Top 10 essential SKUs restocked to minimum acceptable levels (70% capacity)",
+                                                "Department signage updated to 'Fully Stocked'",
+                                                "All-clear message sent via all channels (SMS, app, IVR, signage)",
+                                                "Incident log completed with lessons learned submitted to GSOC"
+                                            ].map((item, i) => (
+                                                <li key={i} className="flex gap-2">
+                                                    <span className="text-green-600 font-bold">✓</span>
+                                                    <span className="text-sm">{item}</span>
+                                                </li>
+                                            ))}
+                                        </ul>
+                                    </div>
+                                </div>
+
+                                {/* Metrics */}
+                                <div>
+                                    <h3 className="font-bold text-lg mb-3 text-indigo-600">Metrics to Track</h3>
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="bg-indigo-50 p-4 rounded">
+                                            <p className="font-bold text-indigo-600 mb-2">Time to Secure Operations</p>
+                                            <p className="text-sm text-gray-600">From alert to protocol activation and team briefed</p>
+                                            <p className="text-xs text-gray-500 mt-2">Target: &lt; 15 minutes</p>
+                                        </div>
+
+                                        <div className="bg-indigo-50 p-4 rounded">
+                                            <p className="font-bold text-indigo-600 mb-2">Time to First Customer Update</p>
+                                            <p className="text-sm text-gray-600">From awareness to first communication sent</p>
+                                            <p className="text-xs text-gray-500 mt-2">Target: &lt; 20 minutes</p>
+                                        </div>
+
+                                        <div className="bg-indigo-50 p-4 rounded">
+                                            <p className="font-bold text-indigo-600 mb-2">In-Stock % (Top 10 SKUs)</p>
+                                            <p className="text-sm text-gray-600">Percentage of essential items maintained</p>
+                                            <p className="text-xs text-gray-500 mt-2">Target: &gt; 70% throughout</p>
+                                        </div>
+
+                                        <div className="bg-indigo-50 p-4 rounded">
+                                            <p className="font-bold text-indigo-600 mb-2">Incident Log Completeness</p>
+                                            <p className="text-sm text-gray-600">All actions documented with timestamps</p>
+                                            <p className="text-xs text-gray-500 mt-2">Target: Yes/Complete</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* QA Checklist */}
+                    <div className="bg-gray-800 text-white p-6 rounded-lg shadow-lg">
+                        <h2 className="text-xl font-bold mb-4">QA: "You-Proof" Checks</h2>
+                        <div className="space-y-2">
+                            {[
+                                "Could a new associate follow this in 5 minutes? ✓",
+                                "Does every step have an owner? ✓",
+                                "Are messages short enough to read on a tiny screen in bad lighting? ✓",
+                                "Do we have at least two channels per message (redundancy)? ✓",
+                                "Do we know exactly when to reopen? ✓"
+                            ].map((item, i) => (
+                                <div key={i} className="flex items-center gap-2 text-sm">
+                                    <span className="text-green-400">☑</span>
+                                    <span>{item}</span>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* Footer */}
+                    <div className="mt-6 text-center text-gray-600 text-sm">
+                        <p>THD GSOC Playbook | Supply Chain Disruption Scenario</p>
+                        <p className="mt-1">For questions or updates, contact your GSOC</p>
+                        <p className="mt-2 text-xs">Version 1.0 | Last Updated: October 2025</p>
+                    </div>
+                </div>
+            );
+        };
+
+        ReactDOM.createRoot(document.getElementById('root')).render(
+            <SupplyChainPlaybook />
+        );
+    </script>
+</body>
+</html>
